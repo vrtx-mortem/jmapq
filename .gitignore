@@ -1,4 +1,5 @@
 *.pyd
 *.pyc
 __pycache__/*
+.venv/*
 map.json
