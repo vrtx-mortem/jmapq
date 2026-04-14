@@ -5,4 +5,4 @@ test:
 	$(PYTHON) -m unittest discover -s tests -p "test_*.py"
 
 scan-sample:
-	$(PYTHON) main.py tests/fixtures/foo.java
+	$(PYTHON) jmapq.py tests/fixtures/foo.java
