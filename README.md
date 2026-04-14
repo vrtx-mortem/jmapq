@@ -220,3 +220,7 @@ jq '
     }
 ' map.json
 ```
+
+## Misc
+
+Drop in [shell wrapper](java-decompiler.sh) to quickly decompile jar files.
