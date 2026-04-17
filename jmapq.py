@@ -628,6 +628,7 @@ def _get_payload_json(paths: list[str], output_path: Path) -> str:
         return payload_json
 
     if not output_path.exists():
+        return _get_payload_json(['.'], output_path)
         raise RuntimeError(
             f"Map file not found: {output_path}. Pass paths to generate it first."
         )
