@@ -541,33 +541,33 @@ def _collect_java_files(paths: list[str]) -> list[Path]:
 
     return sorted(candidates)
 
+def extract_one(
+    java_file: Path,
+) -> tuple[
+    dict[str, JSONValue] | None,
+    dict[str, JSONValue] | None,
+]:
+    try:
+        unit_info = extract_unit(java_file)
+    except Exception as exc:
+        return (
+            None,
+            {
+                "path": str(java_file),
+                "error": str(exc),
+                "error_type": type(exc).__name__,
+            },
+        )
+    return unit_info.to_dict(), None
 
 def _build_payload(paths: list[str]) -> dict[str, JSONValue]:
     units: list[dict[str, JSONValue]] = []
     errors: list[dict[str, JSONValue]] = []
     java_files = _collect_java_files(paths)
 
-    def extract_one(
-        java_file: Path,
-    ) -> tuple[
-        dict[str, JSONValue] | None,
-        dict[str, JSONValue] | None,
-    ]:
-        try:
-            unit_info = extract_unit(java_file)
-        except Exception as exc:
-            return (
-                None,
-                {
-                    "path": str(java_file),
-                    "error": str(exc),
-                    "error_type": type(exc).__name__,
-                },
-            )
-        return unit_info.to_dict(), None
 
     max_workers = max(1, os.cpu_count() or 1)
-    with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+    with concurrent.futures.ProcessPoolExecutor(max_workers=max_workers) as executor:
         for unit_payload, error_payload in executor.map(extract_one, java_files):
             if unit_payload is not None:
                 units.append(unit_payload)
