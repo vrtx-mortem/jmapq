@@ -581,7 +581,7 @@ def _build_payload(paths: list[str]) -> dict[str, JSONValue]:
                     units.append(unit_payload)
                 if error_payload is not None:
                     errors.append(error_payload)
-            progress.update(task, advance=1)
+                progress.update(task, advance=1)
 
     return cast(dict[str, JSONValue], {"units": units, "errors": errors})
 
