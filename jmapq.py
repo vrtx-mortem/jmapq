@@ -21,6 +21,7 @@ import jast
 import jast._jast as jnodes
 from rich.console import Console
 from rich.table import Table
+from rich.progress import Progress, BarColumn, TextColumn, TimeRemainingColumn, MofNCompleteColumn
 
 ENCODING = "utf-8"
 JSONScalar = str | int | float | bool | None
@@ -567,12 +568,20 @@ def _build_payload(paths: list[str]) -> dict[str, JSONValue]:
 
 
     max_workers = max(1, os.cpu_count() or 1)
-    with concurrent.futures.ProcessPoolExecutor(max_workers=max_workers) as executor:
-        for unit_payload, error_payload in executor.map(extract_one, java_files):
-            if unit_payload is not None:
-                units.append(unit_payload)
-            if error_payload is not None:
-                errors.append(error_payload)
+    with Progress(
+        TextColumn("[progress.description]{task.description}"),
+        BarColumn(),
+        MofNCompleteColumn(),
+        TimeRemainingColumn(),
+    ) as progress:
+        task = progress.add_task('Progress', total=len(java_files))
+        with concurrent.futures.ProcessPoolExecutor(max_workers=max_workers) as executor:
+            for unit_payload, error_payload in executor.map(extract_one, java_files):
+                if unit_payload is not None:
+                    units.append(unit_payload)
+                if error_payload is not None:
+                    errors.append(error_payload)
+            progress.update(task, advance=1)
 
     return cast(dict[str, JSONValue], {"units": units, "errors": errors})
 
